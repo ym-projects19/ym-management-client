@@ -58,6 +58,11 @@ const TrainingSessions = () => {
   }, {});
 
   const getSessionStatus = (session) => {
+    // For public sessions, they should always be considered as 'public' status
+    if (session.isPublic) {
+      return 'public';
+    }
+
     const now = new Date();
     const sessionDate = new Date(session.scheduledDate);
     const report = reportsBySession[session._id];
@@ -76,7 +81,7 @@ const TrainingSessions = () => {
     if (filter === 'upcoming') return status === 'upcoming';
     if (filter === 'completed') return status === 'completed';
     if (filter === 'pending') return status === 'pending';
-    if (filter === 'public') return session.isPublic;
+    if (filter === 'public') return status === 'public';
     return true;
   });
 
@@ -114,7 +119,7 @@ const TrainingSessions = () => {
               { key: 'upcoming', label: 'Upcoming', count: sessions.filter(s => getSessionStatus(s) === 'upcoming').length },
               { key: 'pending', label: 'Pending Reports', count: sessions.filter(s => getSessionStatus(s) === 'pending').length },
               { key: 'completed', label: 'Completed', count: sessions.filter(s => getSessionStatus(s) === 'completed').length },
-              { key: 'public', label: 'Public Sessions', count: sessions.filter(s => s.isPublic).length }
+              { key: 'public', label: 'Public Sessions', count: sessions.filter(s => getSessionStatus(s) === 'public').length }
             ].map(tab => (
               <button
                 key={tab.key}
