@@ -1,0 +1,446 @@
+.activity-summary {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.page-title {
+  margin: 0;
+  flex: 1;
+}
+
+.date-range {
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+.time-range-selector {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.time-range-option {
+  padding: 8px 16px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: white;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.time-range-option:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.time-range-option.active {
+  background-color: #1890ff;
+  color: white;
+  border-color: #1890ff;
+}
+
+.summary-tabs {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.summary-tabs .ant-tabs-nav {
+  margin-bottom: 24px;
+}
+
+.summary-tabs .ant-tabs-content-holder {
+  background: transparent;
+}
+
+.chart-card {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.summary-stats .ant-card {
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  height: 100%;
+}
+
+.summary-stats .ant-card-body {
+  padding: 16px;
+}
+
+.summary-stats .ant-statistic-title {
+  font-size: 14px;
+  color: #666;
+}
+
+.summary-stats .ant-statistic-content {
+  font-size: 24px;
+}
+
+.contributors-card .ant-list-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.contributors-card .ant-list-item:last-child {
+  border-bottom: none;
+}
+
+.contributor-rank {
+  width: 28px;
+  height: 28px;
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #666;
+}
+
+.discussions-card .ant-list-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.discussions-card .ant-list-item:last-child {
+  border-bottom: none;
+}
+
+.discussion-stats {
+  display: flex;
+  gap: 16px;
+  margin: 8px 0;
+  color: #666;
+}
+
+.discussion-stats span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.discussion-activity {
+  font-size: 12px;
+  color: #999;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loading-text {
+  color: #666;
+  font-size: 14px;
+}
+
+.error-container {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.error-alert {
+  margin-bottom: 20px;
+}
+
+.chart-row {
+  margin-bottom: 16px;
+}
+
+.bottom-row {
+  margin-top: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .activity-summary {
+    padding: 16px;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  
+  .page-title {
+    margin-bottom: 0;
+  }
+  
+  .summary-stats .ant-col {
+    margin-bottom: 16px;
+  }
+  
+  .time-range-selector {
+    justify-content: flex-start;
+    gap: 8px;
+  }
+  
+  .time-range-option {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+/* Chart container styles */
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+/* Custom scrollbar for lists */
+.contributors-card .ant-list,
+.discussions-card .ant-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.contributors-card .ant-list::-webkit-scrollbar,
+.discussions-card .ant-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.contributors-card .ant-list::-webkit-scrollbar-track,
+.discussions-card .ant-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.contributors-card .ant-list::-webkit-scrollbar-thumb,
+.discussions-card .ant-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.contributors-card .ant-list::-webkit-scrollbar-thumb:hover,
+.discussions-card .ant-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Page title section */
+.page-title-section {
+  flex: 1;
+}
+
+/* Chart placeholder styles */
+.chart-placeholder {
+  text-align: center;
+  padding: 20px;
+}
+
+.chart-data {
+  margin-top: 20px;
+}
+
+.chart-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.chart-label {
+  min-width: 60px;
+  text-align: left;
+  font-size: 14px;
+  color: #666;
+}
+
+.chart-bar {
+  flex: 1;
+  height: 24px;
+  background: #f0f0f0;
+  border-radius: 12px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.chart-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1890ff, #40a9ff);
+  border-radius: 12px;
+  min-width: 2px;
+}
+
+.chart-value {
+  position: absolute;
+  right: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+}
+
+/* Task stats styles */
+.task-stats {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20px;
+}
+
+.task-stat-item {
+  text-align: center;
+}
+
+.task-stat-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 8px;
+}
+
+.task-stat-circle.overdue {
+  background: linear-gradient(135deg, #ff4d4f, #ff7875);
+}
+
+.task-stat-circle.upcoming {
+  background: linear-gradient(135deg, #1890ff, #40a9ff);
+}
+
+.task-stat-circle.no-deadline {
+  background: linear-gradient(135deg, #8c8c8c, #bfbfbf);
+}
+
+.task-stat-label {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Activity card styles */
+.activity-card .ant-list-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.activity-card .ant-list-item:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+}
+
+.activity-icon.submission {
+  background: linear-gradient(135deg, #52c41a, #73d13d);
+}
+
+.activity-icon.training {
+  background: linear-gradient(135deg, #faad14, #ffc53d);
+}
+
+.activity-icon.task {
+  background: linear-gradient(135deg, #1890ff, #40a9ff);
+}
+
+.activity-time {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+}
+
+/* Not implemented container */
+.not-implemented-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 20px;
+}
+
+.not-implemented-card {
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.not-implemented-content {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.not-implemented-icon {
+  font-size: 64px;
+  color: #1890ff;
+  margin-bottom: 24px;
+}
+
+.not-implemented-title {
+  color: #262626;
+  margin-bottom: 16px !important;
+}
+
+.not-implemented-description {
+  font-size: 16px;
+  color: #595959;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.not-implemented-features {
+  text-align: left;
+  max-width: 400px;
+  margin: 0 auto 24px;
+  padding-left: 20px;
+}
+
+.not-implemented-features li {
+  color: #595959;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.not-implemented-alert {
+  margin-top: 24px;
+  text-align: left;
+}
