@@ -46,10 +46,10 @@ const queryClient = new QueryClient({
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
 
-  console.log('🔍 ProtectedRoute - loading:', loading, 'user:', !!user, 'adminOnly:', adminOnly);
+  // console.log('🔍 ProtectedRoute - loading:', loading, 'user:', !!user, 'adminOnly:', adminOnly);
 
   if (loading) {
-    console.log('🔍 ProtectedRoute - showing loading spinner');
+    // console.log('🔍 ProtectedRoute - showing loading spinner');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -58,16 +58,16 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   }
 
   if (!user) {
-    console.log('🔍 ProtectedRoute - no user, redirecting to login');
+    // console.log('🔍 ProtectedRoute - no user, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
   if (adminOnly && user.role !== 'admin') {
-    console.log('🔍 ProtectedRoute - user not admin, redirecting to dashboard');
+    // console.log('🔍 ProtectedRoute - user not admin, redirecting to dashboard');
     return <Navigate to="/dashboard" replace />;
   }
 
-  console.log('🔍 ProtectedRoute - rendering children');
+  // console.log('🔍 ProtectedRoute - rendering children');
   return children;
 };
 
@@ -75,10 +75,10 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
-  console.log('🔍 PublicRoute - loading:', loading, 'user:', !!user);
+  // console.log('🔍 PublicRoute - loading:', loading, 'user:', !!user);
 
   if (loading) {
-    console.log('🔍 PublicRoute - showing loading spinner');
+    // console.log('🔍 PublicRoute - showing loading spinner');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -87,11 +87,11 @@ const PublicRoute = ({ children }) => {
   }
 
   if (user) {
-    console.log('🔍 PublicRoute - user exists, redirecting to dashboard');
+    // console.log('🔍 PublicRoute - user exists, redirecting to dashboard');
     return <Navigate to="/dashboard" replace />;
   }
 
-  console.log('🔍 PublicRoute - no user, rendering children (login page)');
+  // console.log('🔍 PublicRoute - no user, rendering children (login page)');
   return children;
 };
 

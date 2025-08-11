@@ -9,9 +9,9 @@ const TaskManagement = () => {
   
   // Debug current user
   useEffect(() => {
-    console.log('🔍 TaskManagement - Current user:', user);
-    console.log('🔍 TaskManagement - User role:', user?.role);
-    console.log('🔍 TaskManagement - Is admin:', user?.role === 'admin');
+    // console.log('🔍 TaskManagement - Current user:', user);
+    // console.log('🔍 TaskManagement - User role:', user?.role);
+    // console.log('🔍 TaskManagement - Is admin:', user?.role === 'admin');
   }, [user]);
 
   // Fetch tasks
@@ -52,7 +52,7 @@ const TaskManagement = () => {
 
   const createTask = useMutation({
     mutationFn: async (payload) => {
-      console.log('🔍 TaskManagement - Creating task with payload:', payload);
+      // console.log('🔍 TaskManagement - Creating task with payload:', payload);
       // map UI fields to backend schema (url)
       const mapped = {
         ...payload,
@@ -63,7 +63,7 @@ const TaskManagement = () => {
           url: q.leetcodeUrl || q.url || ''
         }))
       };
-      console.log('🔍 TaskManagement - Mapped payload:', mapped);
+      // console.log('🔍 TaskManagement - Mapped payload:', mapped);
       const res = await api.post('/leetcode/tasks', mapped);
       return res.data;
     },
@@ -86,7 +86,7 @@ const TaskManagement = () => {
 
   const updateTask = useMutation({
     mutationFn: async ({ taskId, payload }) => {
-      console.log('🔍 TaskManagement - Updating task:', taskId, 'with payload:', payload);
+      // console.log('🔍 TaskManagement - Updating task:', taskId, 'with payload:', payload);
       const mapped = {
         ...payload,
         questions: (payload.questions || []).map(q => ({
@@ -112,7 +112,7 @@ const TaskManagement = () => {
 
   const deleteTask = useMutation({
     mutationFn: async ({ taskId }) => {
-      console.log('🔍 TaskManagement - Attempting to delete task:', taskId);
+      // console.log('🔍 TaskManagement - Attempting to delete task:', taskId);
       const res = await api.delete(`/leetcode/tasks/${taskId}`);
       return res.data;
     },

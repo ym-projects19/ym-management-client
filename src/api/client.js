@@ -18,17 +18,17 @@ api.interceptors.request.use(
     if (token) {
       config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('🔍 API Request with token:', config.method?.toUpperCase(), config.url);
+      // console.log('🔍 API Request with token:', config.method?.toUpperCase(), config.url);
       
       // Debug: Decode token to see what user it contains
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        console.log('🔍 Token contains userId:', payload.userId, 'Expires:', new Date(payload.exp * 1000));
-      } catch (e) {
-        console.log('🔍 Could not decode token');
-      }
+      // try {
+      //   const payload = JSON.parse(atob(token.split('.')[1]));
+      //   console.log('🔍 Token contains userId:', payload.userId, 'Expires:', new Date(payload.exp * 1000));
+      // } catch (e) {
+      //   console.log('🔍 Could not decode token');
+      // }
     } else {
-      console.log('🔍 API Request without token:', config.method?.toUpperCase(), config.url);
+      // console.log('🔍 API Request without token:', config.method?.toUpperCase(), config.url);
     }
     return config;
   },
@@ -38,7 +38,7 @@ api.interceptors.request.use(
 // Simplified response handling: on 401, clear token and bubble up for UI to redirect/logout
 api.interceptors.response.use(
   (response) => {
-    console.log('✅ API Response:', response.status, response.config.method?.toUpperCase(), response.config.url);
+    //console.log('✅ API Response:', response.status, response.config.method?.toUpperCase(), response.config.url);
     return response;
   },
   async (error) => {
@@ -46,7 +46,7 @@ api.interceptors.response.use(
     console.error('❌ API Error:', status, error.config?.method?.toUpperCase(), error.config?.url, error.response?.data);
     
     if (status === 401) {
-      console.log('🔍 401 error - clearing token');
+      // console.log('🔍 401 error - clearing token');
       try {
         localStorage.removeItem('token');
       } catch (_) {}

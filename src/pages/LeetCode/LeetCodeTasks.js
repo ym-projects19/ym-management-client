@@ -79,16 +79,16 @@ const LeetCodeTasks = () => {
   const { data: tasksData = [], isLoading, error, refetch } = useQuery({
     queryKey: ['leetcode-tasks', filters, searchTerm, showDeletedTasks],
     queryFn: async () => {
-      console.log('🔍 Fetching tasks from API...');
+      // console.log('🔍 Fetching tasks from API...');
       const params = new URLSearchParams();
       if (showDeletedTasks && isAdmin) {
         params.append('includeDeleted', 'true');
       }
       const url = `/leetcode/tasks${params.toString() ? '?' + params.toString() : ''}`;
       const response = await api.get(url);
-      console.log('🔍 API response:', response.data);
+      // console.log('🔍 API response:', response.data);
       const tasks = response.data.tasks || response.data || [];
-      console.log('🔍 Parsed tasks:', tasks);
+      // console.log('🔍 Parsed tasks:', tasks);
       return tasks;
     },
     refetchOnWindowFocus: false,
@@ -303,8 +303,8 @@ const LeetCodeTasks = () => {
 
   const renderTaskCards = () => {
     // Debug logging
-    console.log('🔍 Rendering task cards. Tasks data:', tasksData);
-    console.log('🔍 Filtered tasks:', filteredTasks);
+    // console.log('🔍 Rendering task cards. Tasks data:', tasksData);
+    // console.log('🔍 Filtered tasks:', filteredTasks);
     
     if (isLoading) {
       return (
@@ -376,7 +376,7 @@ const LeetCodeTasks = () => {
           const isDeleted = task.isActive === false;
           
           // Debug logging for each task
-          console.log(`🔍 Task "${task.title}" questions:`, task.questions);
+          // console.log(`🔍 Task "${task.title}" questions:`, task.questions);
 
           return (
             <div key={task._id} className={`rounded-lg shadow-sm border transition-shadow duration-200 ${
@@ -696,7 +696,7 @@ const LeetCodeTasks = () => {
         <div className="flex space-x-3">
           <button
             onClick={() => {
-              console.log('🔄 Force refreshing tasks...');
+              // console.log('🔄 Force refreshing tasks...');
               refetch();
             }}
             className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

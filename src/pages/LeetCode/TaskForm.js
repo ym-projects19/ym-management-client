@@ -172,8 +172,8 @@ const TaskForm = () => {
       deadline: formData.deadline.toISOString()
     };
 
-    console.log('🔍 TaskForm - Submitting payload:', payload);
-    console.log('🔍 TaskForm - Questions in payload:', payload.questions);
+    // console.log('🔍 TaskForm - Submitting payload:', payload);
+    // console.log('🔍 TaskForm - Questions in payload:', payload.questions);
 
     mutation.mutate(payload);
   };

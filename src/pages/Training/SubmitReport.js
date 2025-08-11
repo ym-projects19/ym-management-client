@@ -31,15 +31,15 @@ const SubmitReport = () => {
   const { data: session, error: sessionError } = useQuery({
     queryKey: ['training-session', sessionId],
     queryFn: async () => {
-      console.log('Fetching session data for sessionId:', sessionId);
+      // console.log('Fetching session data for sessionId:', sessionId);
       const res = await api.get(`/training/sessions/${sessionId}`);
-      console.log('Session response:', res.data);
+      // console.log('Session response:', res.data);
       return res.data.session;
     },
     enabled: !!sessionId,
     staleTime: 1000 * 60 * 5,
     onSuccess: (data) => {
-      console.log('Session data loaded:', data);
+      // console.log('Session data loaded:', data);
     },
     onError: (error) => {
       console.error('Session loading error:', error);
@@ -51,14 +51,14 @@ const SubmitReport = () => {
     queryKey: ['training-report', sessionId],
     queryFn: async () => {
       try {
-        console.log('Frontend: Fetching report for sessionId:', sessionId);
+        // console.log('Frontend: Fetching report for sessionId:', sessionId);
         const res = await api.get(`/training/reports/session/${sessionId}`);
-        console.log('Frontend: Report API response:', res.data);
+        // console.log('Frontend: Report API response:', res.data);
         return res.data.report;
       } catch (error) {
         // Return null if report doesn't exist yet (404 is expected)
         if (error.response?.status === 404) {
-          console.log('Frontend: No report found (404) - this is normal for new reports');
+          // console.log('Frontend: No report found (404) - this is normal for new reports');
           return null;
         }
         console.error('Frontend: Error fetching existing report:', error);
@@ -68,14 +68,14 @@ const SubmitReport = () => {
     enabled: !!sessionId,
     retry: false, // Don't retry on 404
     onSuccess: (data) => {
-      console.log('Frontend: Query onSuccess called with data:', data);
+      // console.log('Frontend: Query onSuccess called with data:', data);
       if (data) {
-        console.log('Frontend: Loading existing report data:', {
-          id: data._id,
-          photos: data.photos?.length || 0,
-          linkedinUrl: data.linkedinPostUrl,
-          status: data.submissionStatus
-        });
+        // console.log('Frontend: Loading existing report data:', {
+        //   id: data._id,
+        //   photos: data.photos?.length || 0,
+        //   linkedinUrl: data.linkedinPostUrl,
+        //   status: data.submissionStatus
+        // });
         setExistingReport(data);
         setFormData(prev => ({
           ...prev,
@@ -86,9 +86,9 @@ const SubmitReport = () => {
           sessionId: sessionId || '',
           status: data.submissionStatus || 'draft'
         }));
-        console.log('Frontend: Form data updated');
+        // console.log('Frontend: Form data updated');
       } else {
-        console.log('Frontend: No existing report found for session:', sessionId);
+        // console.log('Frontend: No existing report found for session:', sessionId);
       }
     },
     onError: (error) => {
@@ -99,7 +99,7 @@ const SubmitReport = () => {
   // Manual effect to load existing report data when it becomes available
   useEffect(() => {
     if (existingReportData) {
-      console.log('useEffect: Loading report data into form:', existingReportData);
+      // console.log('useEffect: Loading report data into form:', existingReportData);
       setExistingReport(existingReportData);
       setFormData(prev => ({
         ...prev,

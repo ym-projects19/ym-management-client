@@ -96,9 +96,9 @@ const TaskDetails = () => {
     queryKey: ['leetcode-user-submissions', taskId, userId],
     queryFn: async () => {
       if (!userId) return [];
-      console.log('Fetching user submissions for userId:', userId, 'taskId:', taskId);
+      // console.log('Fetching user submissions for userId:', userId, 'taskId:', taskId);
       const res = await api.get(`/leetcode/tasks/${taskId}/submissions?userId=${userId}`);
-      console.log('User submissions response:', res.data);
+      // console.log('User submissions response:', res.data);
       return res.data.submissions || [];
     },
     enabled: !!taskId && !!userId,
@@ -255,7 +255,7 @@ const TaskDetails = () => {
       isPersonalPractice: false
     };
 
-    console.log('Submitting payload:', payload); // Debug log
+    // console.log('Submitting payload:', payload); // Debug log
     submitMutation.mutate(payload);
   };
 
@@ -297,14 +297,14 @@ const TaskDetails = () => {
   const hasSubmittedAnyQuestion = userSubmissions && userSubmissions.length > 0;
 
   // Debug logging
-  console.log('Debug - user object:', user);
-  console.log('Debug - userId (computed):', userId);
-  console.log('Debug - taskId:', taskId);
-  console.log('Debug - userSubmissions:', userSubmissions);
-  console.log('Debug - userSubmissionsError:', userSubmissionsError);
-  console.log('Debug - allSubmissions:', allSubmissions);
-  console.log('Debug - hasSubmittedAnyQuestion:', hasSubmittedAnyQuestion);
-  console.log('Debug - currentSubmissions:', currentSubmissions);
+  // console.log('Debug - user object:', user);
+  // console.log('Debug - userId (computed):', userId);
+  // console.log('Debug - taskId:', taskId);
+  // console.log('Debug - userSubmissions:', userSubmissions);
+  // console.log('Debug - userSubmissionsError:', userSubmissionsError);
+  // console.log('Debug - allSubmissions:', allSubmissions);
+  // console.log('Debug - hasSubmittedAnyQuestion:', hasSubmittedAnyQuestion);
+  // console.log('Debug - currentSubmissions:', currentSubmissions);
 
   // Check if current user has liked a submission
   const hasLiked = (submission) => {

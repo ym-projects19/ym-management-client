@@ -12,17 +12,17 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       const token = localStorage.getItem('token');
-      console.log('🔍 Auth initialization - Token exists:', !!token);
+      // console.log('🔍 Auth initialization - Token exists:', !!token);
       
       try {
         if (token) {
-          console.log('🔍 Making request to /auth/me...');
+          // console.log('🔍 Making request to /auth/me...');
           const response = await api.get('/auth/me');
-          console.log('✅ Auth me response:', response.data);
+          // console.log('✅ Auth me response:', response.data);
           setUser(response.data.user || response.data);
         } else {
           // Not signed in
-          console.log('🔍 No token found, setting user to null');
+          // console.log('🔍 No token found, setting user to null');
           setUser(null);
         }
       } catch (error) {
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('token');
         setUser(null);
       } finally {
-        console.log('🔍 Auth initialization complete, setting loading to false');
+        // console.log('🔍 Auth initialization complete, setting loading to false');
         setLoading(false);
       }
     };
@@ -49,18 +49,18 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      console.log('🔍 Attempting login for:', email);
+      // console.log('🔍 Attempting login for:', email);
       const response = await api.post('/auth/login', { email, password });
-      console.log('✅ Login response:', response.data);
+      // console.log('✅ Login response:', response.data);
       
       const accessToken = response.data?.accessToken || response.data?.token;
       if (accessToken) {
         localStorage.setItem('token', accessToken);
-        console.log('✅ Token saved to localStorage');
+        // console.log('✅ Token saved to localStorage');
       }
       const userData = response.data.user;
       setUser(userData);
-      console.log('✅ User set:', userData);
+      // console.log('✅ User set:', userData);
       toast.success('Login successful!');
       return { success: true };
     } catch (error) {
