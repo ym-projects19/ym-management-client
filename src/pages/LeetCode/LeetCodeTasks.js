@@ -21,8 +21,6 @@ const LeetCodeTasks = () => {
 
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [showFilters, setShowFilters] = useState(false);
   const [showDeletedTasks, setShowDeletedTasks] = useState(false);
   const [filters, setFilters] = useState({
     status: 'all',
@@ -98,10 +96,22 @@ const LeetCodeTasks = () => {
   // Apply filters to tasks
   const filteredTasks = useMemo(() => {
     return tasksData.filter(task => {
-      // Search filter
-      const matchesSearch = !searchTerm ||
-        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      // Enhanced search filter - includes title, description, and question numbers
+      const matchesSearch = !searchTerm || (() => {
+        const searchLower = searchTerm.toLowerCase();
+        
+        // Search in title and description
+        const titleMatch = task.title.toLowerCase().includes(searchLower);
+        const descriptionMatch = task.description?.toLowerCase().includes(searchLower);
+        
+        // Search in question numbers (both as string and number)
+        const questionNumberMatch = task.questions?.some(q => 
+          q.questionNumber.toString().includes(searchTerm) ||
+          q.title?.toLowerCase().includes(searchLower)
+        );
+        
+        return titleMatch || descriptionMatch || questionNumberMatch;
+      })();
 
       // Status filter
       const now = new Date();
@@ -769,69 +779,6 @@ const LeetCodeTasks = () => {
         onDateRangeChange={handleDateRangeChange}
         onResetFilters={resetFilters}
       />
-
-      {/* Search and Filter */}
-      <div className="mb-6 bg-white shadow rounded-lg p-4">
-        <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
-          <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Search tasks..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          <div className="relative">
-            <button
-              type="button"
-              className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <Filter className="mr-2 h-4 w-4 text-gray-500" />
-              Filter
-            </button>
-
-            {showFilters && (
-              <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-                <div className="py-1" role="menu" aria-orientation="vertical">
-                  <button
-                    className={`${statusFilter === 'all' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} block w-full text-left px-4 py-2 text-sm`}
-                    onClick={() => {
-                      setStatusFilter('all');
-                      setShowFilters(false);
-                    }}
-                  >
-                    All Tasks
-                  </button>
-                  <button
-                    className={`${statusFilter === 'active' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} block w-full text-left px-4 py-2 text-sm`}
-                    onClick={() => {
-                      setStatusFilter('active');
-                      setShowFilters(false);
-                    }}
-                  >
-                    Active
-                  </button>
-                  <button
-                    className={`${statusFilter === 'expired' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} block w-full text-left px-4 py-2 text-sm`}
-                    onClick={() => {
-                      setStatusFilter('expired');
-                      setShowFilters(false);
-                    }}
-                  >
-                    Expired
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
 
       {renderTaskCards()}
     </div>
