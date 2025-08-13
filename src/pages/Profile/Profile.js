@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-hot-toast';
 import api from '../../api/client';
 
 const Profile = () => {
@@ -53,9 +54,9 @@ const Profile = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries('me');
-      alert('Avatar updated');
+      toast.success('Avatar updated successfully!');
     },
-    onError: () => alert('Failed to upload avatar')
+    onError: () => toast.error('Failed to upload avatar')
   });
 
   const removeAvatar = useMutation({
@@ -67,9 +68,9 @@ const Profile = () => {
       queryClient.invalidateQueries('me');
       setAvatarFile(null);
       setAvatarPreview('');
-      alert('Avatar removed');
+      toast.success('Avatar removed successfully!');
     },
-    onError: () => alert('Failed to remove avatar')
+    onError: () => toast.error('Failed to remove avatar')
   });
 
   React.useEffect(() => {
@@ -109,24 +110,24 @@ const Profile = () => {
 
   const handleUploadAvatar = () => {
     if (!avatarFile) {
-      alert('Please choose an image first');
+      toast.error('Please choose an image first');
       return;
     }
     uploadAvatar.mutate(avatarFile);
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
+    <div className="container mx-auto px-4 py-6 max-w-4xl">
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">Profile</h1>
 
       {/* Avatar */}
-      <div className="card">
+      <div className="card mb-6">
         <div className="card-header">
           <h3 className="text-lg font-medium text-gray-900">Profile Picture</h3>
         </div>
         <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
               {avatarPreview ? (
                 <img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" />
               ) : (
@@ -135,37 +136,39 @@ const Profile = () => {
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleAvatarChange}
-                className="form-input"
+                className="form-input w-full sm:w-auto text-sm"
               />
-              <button
-                className="btn-primary"
-                onClick={handleUploadAvatar}
-                disabled={uploadAvatar.isLoading}
-              >
-                {uploadAvatar.isLoading ? 'Uploading...' : 'Upload'}
-              </button>
-              {avatarPreview && (
+              <div className="flex gap-2 w-full sm:w-auto">
                 <button
-                  className="btn-secondary"
-                  onClick={() => removeAvatar.mutate()}
-                  disabled={removeAvatar.isLoading}
-                  title="Remove current avatar"
+                  className="btn-primary flex-1 sm:flex-none text-sm px-3 py-2"
+                  onClick={handleUploadAvatar}
+                  disabled={uploadAvatar.isLoading}
                 >
-                  {removeAvatar.isLoading ? 'Removing...' : 'Remove'}
+                  {uploadAvatar.isLoading ? 'Uploading...' : 'Upload'}
                 </button>
-              )}
+                {avatarPreview && (
+                  <button
+                    className="btn-secondary flex-1 sm:flex-none text-sm px-3 py-2"
+                    onClick={() => removeAvatar.mutate()}
+                    disabled={removeAvatar.isLoading}
+                    title="Remove current avatar"
+                  >
+                    {removeAvatar.isLoading ? 'Removing...' : 'Remove'}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Profile Info */}
-      <div className="card">
+      <div className="card mb-6">
         <div className="card-header">
           <h3 className="text-lg font-medium text-gray-900">Your Information</h3>
         </div>
@@ -174,35 +177,35 @@ const Profile = () => {
           onSubmit={(e) => {
             e.preventDefault();
             updateProfile.mutate(profileForm, {
-              onSuccess: () => alert('Profile updated'),
-              onError: () => alert('Failed to update'),
+              onSuccess: () => toast.success('Profile updated successfully!'),
+              onError: () => toast.error('Failed to update profile'),
             });
           }}
         >
           <div>
             <label className="form-label">Name</label>
             <input
-              className="form-input mt-1"
+              className="form-input mt-1 w-full"
+              type="text"
               value={profileForm.name}
               onChange={(e) => setProfileForm((f) => ({ ...f, name: e.target.value }))}
+              placeholder="Enter your name"
               required
             />
           </div>
           <div>
             <label className="form-label">Email</label>
             <input
-              className="form-input mt-1"
+              className="form-input mt-1 w-full"
               type="email"
               value={profileForm.email}
-              onChange={(e) => setProfileForm((f) => ({ ...f, email: e.target.value }))}
-              required
               disabled
-              title="Email changes typically require admin"
+              placeholder="Email cannot be changed"
             />
           </div>
           <div className="flex justify-end">
-            <button className="btn-primary" type="submit" disabled={updateProfile.isLoading}>
-              {updateProfile.isLoading ? 'Saving...' : 'Save'}
+            <button className="btn-primary w-full sm:w-auto" type="submit" disabled={updateProfile.isLoading}>
+              {updateProfile.isLoading ? 'Updating...' : 'Update Profile'}
             </button>
           </div>
         </form>
@@ -218,22 +221,22 @@ const Profile = () => {
           onSubmit={(e) => {
             e.preventDefault();
             if (!pwdForm.currentPassword || !pwdForm.newPassword) {
-              alert('Both fields are required');
+              toast.error('Both fields are required');
               return;
             }
             changePassword.mutate(pwdForm, {
               onSuccess: () => {
-                alert('Password changed');
+                toast.success('Password changed successfully!');
                 setPwdForm({ currentPassword: '', newPassword: '' });
               },
-              onError: () => alert('Failed to change password'),
+              onError: () => toast.error('Failed to change password'),
             });
           }}
         >
           <div>
             <label className="form-label">Current Password</label>
             <input
-              className="form-input mt-1"
+              className="form-input mt-1 w-full"
               type="password"
               value={pwdForm.currentPassword}
               onChange={(e) => setPwdForm((f) => ({ ...f, currentPassword: e.target.value }))}
@@ -244,7 +247,7 @@ const Profile = () => {
           <div>
             <label className="form-label">New Password</label>
             <input
-              className="form-input mt-1"
+              className="form-input mt-1 w-full"
               type="password"
               value={pwdForm.newPassword}
               onChange={(e) => setPwdForm((f) => ({ ...f, newPassword: e.target.value }))}
@@ -253,7 +256,7 @@ const Profile = () => {
             />
           </div>
           <div className="flex justify-end">
-            <button className="btn-primary" type="submit" disabled={changePassword.isLoading}>
+            <button className="btn-primary w-full sm:w-auto" type="submit" disabled={changePassword.isLoading}>
               {changePassword.isLoading ? 'Updating...' : 'Update Password'}
             </button>
           </div>

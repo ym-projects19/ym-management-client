@@ -579,7 +579,7 @@ const LeetCodeTasks = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-4 sm:py-8">
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
@@ -695,7 +695,7 @@ const LeetCodeTasks = () => {
         </div>
       )}
 
-      <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 mb-8">
+      <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">LeetCode Tasks</h1>
           <p className="mt-1 text-sm text-gray-500">
@@ -703,8 +703,8 @@ const LeetCodeTasks = () => {
           </p>
         </div>
 
-        <div className="flex space-x-3">
-          <button
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          {/* <button
             onClick={() => {
               // console.log('🔄 Force refreshing tasks...');
               refetch();
@@ -712,11 +712,11 @@ const LeetCodeTasks = () => {
             className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             🔄 Refresh
-          </button>
+          </button> */}
           
           <Link
             to="/leetcode/my-practice"
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             <Code className="mr-2 h-4 w-4" />
             My Practice
@@ -724,7 +724,7 @@ const LeetCodeTasks = () => {
 
           <Link
             to="/leetcode/community-practice"
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+            className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
           >
             <Users className="mr-2 h-4 w-4" />
             Community Practice
@@ -732,7 +732,7 @@ const LeetCodeTasks = () => {
 
           {isAdmin && (
             <>
-              <div className="flex items-center">
+              <div className="flex items-center justify-center sm:justify-start px-3 py-2 bg-gray-50 rounded-md">
                 <input
                   id="show-deleted"
                   type="checkbox"
@@ -747,7 +747,7 @@ const LeetCodeTasks = () => {
               
               <Link
                 to="/leetcode/tasks/new"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 New Task
@@ -757,7 +757,7 @@ const LeetCodeTasks = () => {
         </div>
       </div>
 
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">LeetCode Tasks</h1>
           <button
@@ -768,7 +768,7 @@ const LeetCodeTasks = () => {
             New Task
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Task Filters */}
       <TaskFilters

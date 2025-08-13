@@ -102,10 +102,10 @@ const TrainingSessions = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Training Sessions</h1>
-        <p className="mt-2 text-gray-600">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Training Sessions</h1>
+        <p className="mt-2 text-sm sm:text-base text-gray-600">
           View your assigned training sessions, submit reports, and explore public sessions
         </p>
       </div>
@@ -113,33 +113,36 @@ const TrainingSessions = () => {
       {/* Filter Tabs */}
       <div className="mb-6">
         <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            {[
-              { key: 'all', label: 'All Sessions', count: sessions.length },
-              { key: 'upcoming', label: 'Upcoming', count: sessions.filter(s => getSessionStatus(s) === 'upcoming').length },
-              { key: 'pending', label: 'Pending Reports', count: sessions.filter(s => getSessionStatus(s) === 'pending').length },
-              { key: 'completed', label: 'Completed', count: sessions.filter(s => getSessionStatus(s) === 'completed').length },
-              { key: 'public', label: 'Public Sessions', count: sessions.filter(s => getSessionStatus(s) === 'public').length }
-            ].map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => setFilter(tab.key)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  filter === tab.key
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {tab.label}
-                {tab.count > 0 && (
-                  <span className={`ml-2 py-0.5 px-2 rounded-full text-xs ${
-                    filter === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
-                  }`}>
-                    {tab.count}
-                  </span>
-                )}
+          <nav className="-mb-px flex overflow-x-auto scrollbar-hide">
+            <div className="flex space-x-2 sm:space-x-8 min-w-max px-1">
+              {[
+                { key: 'all', label: 'All Sessions', count: sessions.length },
+                { key: 'upcoming', label: 'Upcoming', count: sessions.filter(s => getSessionStatus(s) === 'upcoming').length },
+                { key: 'pending', label: 'Pending Reports', count: sessions.filter(s => getSessionStatus(s) === 'pending').length },
+                { key: 'completed', label: 'Completed', count: sessions.filter(s => getSessionStatus(s) === 'completed').length },
+                { key: 'public', label: 'Public Sessions', count: sessions.filter(s => getSessionStatus(s) === 'public').length }
+              ].map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setFilter(tab.key)}
+                  className={`py-2 px-2 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                    filter === tab.key
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
+                  {tab.count > 0 && (
+                    <span className={`ml-1 sm:ml-2 py-0.5 px-1.5 sm:px-2 rounded-full text-xs ${
+                      filter === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {tab.count}
+                    </span>
+                  )}
               </button>
             ))}
+            </div>
           </nav>
         </div>
       </div>

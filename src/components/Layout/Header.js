@@ -23,7 +23,7 @@ const Header = ({ onMenuClick }) => {
           >
             <Menu className="h-6 w-6" />
           </button>
-          
+
           <div className="ml-4 lg:ml-0">
             <h1 className="text-xl font-semibold text-gray-900">
               Training Platform
@@ -64,14 +64,14 @@ const Header = ({ onMenuClick }) => {
                   <User className="h-4 w-4 mr-3" />
                   Profile
                 </Link>
-                <Link
-                  to="/settings"
+                {/* <Link
+                  to="/profile"
                   className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setDropdownOpen(false)}
                 >
                   <Settings className="h-4 w-4 mr-3" />
                   Settings
-                </Link>
+                </Link> */}
                 <hr className="my-1" />
                 <button
                   onClick={handleLogout}

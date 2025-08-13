@@ -3,10 +3,10 @@ import { Download, FileSpreadsheet, FileText } from 'lucide-react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 
-const ExportButton = ({ 
-  type, 
-  label, 
-  onExportStart, 
+const ExportButton = ({
+  type,
+  label,
+  onExportStart,
   className = '',
   filters = {},
   format = 'csv' // 'csv' or 'excel'
@@ -15,7 +15,7 @@ const ExportButton = ({
 
   const handleExport = async () => {
     if (isExporting) return;
-    
+
     setIsExporting(true);
     onExportStart?.();
 
@@ -33,12 +33,12 @@ const ExportButton = ({
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      
+
       // Set filename based on type and format
       const timestamp = new Date().toISOString().split('T')[0];
       const extension = format === 'excel' ? 'xlsx' : 'csv';
       link.setAttribute('download', `${type}_export_${timestamp}.${extension}`);
-      
+
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -59,9 +59,8 @@ const ExportButton = ({
     <button
       onClick={handleExport}
       disabled={isExporting}
-      className={`inline-flex items-center ${className} ${
-        isExporting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'
-      }`}
+      className={`inline-flex items-center ${className} ${isExporting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'
+        }`}
     >
       {isExporting ? (
         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2" />

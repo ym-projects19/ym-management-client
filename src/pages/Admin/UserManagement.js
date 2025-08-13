@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, Filter, X } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import api from '../../utils/api';
 
 const roles = ['user', 'admin'];
@@ -72,7 +73,7 @@ const UserManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries('admin-users');
-      alert('User created');
+      toast.success('User created successfully!');
       setCreateForm({ name: '', email: '', role: 'user', password: '' });
     },
   });
@@ -85,7 +86,7 @@ const UserManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries('admin-users');
-      alert('User updated');
+      toast.success('User updated successfully!');
     },
   });
 
@@ -97,7 +98,7 @@ const UserManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries('admin-users');
-      alert('User removed');
+      toast.success('User removed successfully!');
     },
   });
 
@@ -210,7 +211,7 @@ const UserManagement = () => {
           onSubmit={(e) => {
             e.preventDefault();
             if (!createForm.email || !createForm.password) {
-              alert('Email and default password are required');
+              toast.error('Email and default password are required');
               return;
             }
             createUser.mutate(createForm);

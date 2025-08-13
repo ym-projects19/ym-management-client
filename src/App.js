@@ -207,6 +207,9 @@ function App() {
 
                 {/* Profile Route */}
                 <Route path="profile" element={<Profile />} />
+                
+                {/* Settings redirect to Profile */}
+                <Route path="settings" element={<Navigate to="/profile" replace />} />
               </Route>
 
               {/* Catch all route */}
