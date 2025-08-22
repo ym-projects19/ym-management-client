@@ -63,6 +63,24 @@ const TaskForm = () => {
     enabled: isEditMode || true // Always fetch users
   });
 
+  // Fetch practice question statistics for duplicate checking
+  const { data: practiceStats = [], isError: practiceStatsError } = useQuery({
+    queryKey: ['practice-stats'],
+    queryFn: async () => {
+      try {
+        const response = await api.get('/leetcode/practice-stats');
+        return response.data.stats || [];
+      } catch (error) {
+        // If the endpoint fails, fall back to empty array (graceful degradation)
+        console.warn('Failed to fetch practice stats:', error);
+        return [];
+      }
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    refetchOnWindowFocus: false,
+    retry: 1 // Only retry once
+  });
+
   // Mutation for create/update
   const mutation = useMutation({
     mutationFn: async (data) => {
@@ -104,11 +122,46 @@ const TaskForm = () => {
     }));
   };
 
+  // Check if a question number is already used in practice
+  const isQuestionUsedInPractice = (questionNumber) => {
+    if (!questionNumber || !practiceStats.length) return false;
+    return practiceStats.some(stat => 
+      stat.questionNumber === parseInt(questionNumber)
+    );
+  };
+
+  // Get practice submission count for a question
+  const getPracticeSubmissionCount = (questionNumber) => {
+    if (!questionNumber || !practiceStats.length) return 0;
+    const stat = practiceStats.find(stat => 
+      stat.questionNumber === parseInt(questionNumber)
+    );
+    return stat ? stat.userCount : 0;
+  };
+
+  // Get practice submission details for a question
+  const getPracticeSubmissionDetails = (questionNumber) => {
+    if (!questionNumber || !practiceStats.length) return null;
+    return practiceStats.find(stat => 
+      stat.questionNumber === parseInt(questionNumber)
+    );
+  };
+
   // Add a new question
   const addQuestion = (e) => {
     e.preventDefault();
     if (!newQuestion.questionNumber || !newQuestion.title || !newQuestion.url) {
       toast.error('Please fill in all question fields');
+      return;
+    }
+
+    // Check if question is already in the current task
+    const isDuplicate = formData.questions.some(q => 
+      q.questionNumber === parseInt(newQuestion.questionNumber)
+    );
+
+    if (isDuplicate) {
+      toast.error('This question number is already added to this task');
       return;
     }
 
@@ -289,40 +342,114 @@ const TaskForm = () => {
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-6">Questions</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-medium text-gray-900">Questions</h2>
+            {formData.questions.length > 0 && (
+              <div className="text-sm text-gray-500">
+                {(() => {
+                  const practicedCount = formData.questions.filter(q => 
+                    isQuestionUsedInPractice(q.questionNumber)
+                  ).length;
+                  return practicedCount > 0 ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      <AlertTriangle className="h-3 w-3 mr-1" />
+                      {practicedCount} of {formData.questions.length} already practiced
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      ✓ All questions are new
+                    </span>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
+          
+          {practiceStats.length > 0 && (
+            <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-sm text-blue-700">
+                <span className="font-medium">Practice Detection:</span> Questions that have been practiced by users will be highlighted with a warning indicator. This helps you avoid assigning questions that users have already solved.
+              </p>
+            </div>
+          )}
+          
+          {practiceStatsError && (
+            <div className="mb-6 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <p className="text-sm text-yellow-700">
+                <AlertTriangle className="h-4 w-4 inline mr-1" />
+                <span className="font-medium">Note:</span> Unable to load practice statistics. Question duplication detection is temporarily unavailable.
+              </p>
+            </div>
+          )}
           
           {formData.questions.length > 0 ? (
             <div className="mb-6 space-y-4">
-              {formData.questions.map((q, index) => (
-                <div key={index} className="border rounded-md p-4 relative">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-medium text-gray-900">
-                        #{q.questionNumber} - {q.title}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Difficulty: <span className="font-medium">{q.difficulty}</span>
-                      </p>
-                      <a 
-                        href={q.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-sm text-indigo-600 hover:text-indigo-800"
+              {formData.questions.map((q, index) => {
+                const isPracticed = isQuestionUsedInPractice(q.questionNumber);
+                const practiceCount = getPracticeSubmissionCount(q.questionNumber);
+                
+                return (
+                  <div key={index} className={`border rounded-md p-4 relative ${
+                    isPracticed ? 'border-yellow-200 bg-yellow-50' : 'border-gray-200'
+                  }`}>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2">
+                          <h3 className="font-medium text-gray-900">
+                            #{q.questionNumber} - {q.title}
+                          </h3>
+                          {isPracticed && (
+                            <span 
+                              className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 cursor-help"
+                              title={`This question has been practiced by ${practiceCount} user(s) with ${(() => {
+                                const details = getPracticeSubmissionDetails(q.questionNumber);
+                                return details ? details.submissionCount : practiceCount;
+                              })()} total submissions`}
+                            >
+                              <AlertTriangle className="h-3 w-3 mr-1" />
+                              Practiced
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-500">
+                          Difficulty: <span className="font-medium">{q.difficulty}</span>
+                        </p>
+                        {isPracticed && (
+                          <div className="mt-1">
+                            <p className="text-xs text-yellow-600">
+                              Already practiced by {practiceCount} user(s)
+                            </p>
+                            {(() => {
+                              const details = getPracticeSubmissionDetails(q.questionNumber);
+                              return details && details.submissionCount > details.userCount && (
+                                <p className="text-xs text-gray-500">
+                                  {details.submissionCount} total submissions
+                                </p>
+                              );
+                            })()}
+                          </div>
+                        )}
+                        <a 
+                          href={q.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-sm text-indigo-600 hover:text-indigo-800"
+                        >
+                          View on LeetCode
+                        </a>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeQuestion(index)}
+                        className="text-gray-400 hover:text-red-500"
+                        title="Remove question"
                       >
-                        View on LeetCode
-                      </a>
+                        <Trash2 className="h-5 w-5" />
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeQuestion(index)}
-                      className="text-gray-400 hover:text-red-500"
-                      title="Remove question"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="mb-6 text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
@@ -331,23 +458,56 @@ const TaskForm = () => {
           )}
 
           <div className="border-t pt-6">
-            <h3 className="text-md font-medium text-gray-900 mb-4">Add New Question</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-md font-medium text-gray-900">Add New Question</h3>
+              <div className="text-xs text-gray-500 flex items-center">
+                <AlertTriangle className="h-3 w-3 mr-1 text-yellow-500" />
+                Questions already practiced will be highlighted
+              </div>
+            </div>
             
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-12">
               <div className="sm:col-span-1">
                 <label htmlFor="questionNumber" className="block text-sm font-medium text-gray-700">
                   #
                 </label>
-                <input
-                  type="number"
-                  id="questionNumber"
-                  name="questionNumber"
-                  value={newQuestion.questionNumber}
-                  onChange={handleQuestionChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  placeholder="1"
-                  min="1"
-                />
+                <div className="relative">
+                  <input
+                    type="number"
+                    id="questionNumber"
+                    name="questionNumber"
+                    value={newQuestion.questionNumber}
+                    onChange={handleQuestionChange}
+                    className={`mt-1 block w-full rounded-md shadow-sm focus:ring-indigo-500 sm:text-sm ${
+                      newQuestion.questionNumber && isQuestionUsedInPractice(newQuestion.questionNumber)
+                        ? 'border-yellow-300 focus:border-yellow-500 bg-yellow-50'
+                        : 'border-gray-300 focus:border-indigo-500'
+                    }`}
+                    placeholder="1"
+                    min="1"
+                  />
+                  {newQuestion.questionNumber && isQuestionUsedInPractice(newQuestion.questionNumber) && (
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                    </div>
+                  )}
+                </div>
+                {newQuestion.questionNumber && isQuestionUsedInPractice(newQuestion.questionNumber) && (
+                  <div className="mt-1">
+                    <p className="text-xs text-yellow-600 flex items-center">
+                      <AlertTriangle className="h-3 w-3 mr-1" />
+                      Already practiced by {getPracticeSubmissionCount(newQuestion.questionNumber)} user(s)
+                    </p>
+                    {(() => {
+                      const details = getPracticeSubmissionDetails(newQuestion.questionNumber);
+                      return details && details.submissionCount > details.userCount && (
+                        <p className="text-xs text-gray-500">
+                          {details.submissionCount} total submissions
+                        </p>
+                      );
+                    })()}
+                  </div>
+                )}
               </div>
 
               <div className="sm:col-span-5">

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../api/client';
 
 const TaskManagement = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  
+
   // Debug current user
   useEffect(() => {
     // console.log('🔍 TaskManagement - Current user:', user);
@@ -20,7 +21,7 @@ const TaskManagement = () => {
     queryFn: async () => {
       const res = await api.get('/leetcode/tasks?includeDeleted=true');
       return res.data.tasks || res.data;
-    }
+    },
   });
 
   // Create task form
@@ -31,24 +32,27 @@ const TaskManagement = () => {
     questions: [{ questionNumber: '', title: '', leetcodeUrl: '', difficulty: 'Medium' }],
   });
 
-  const addQuestion = () =>
+  const addQuestion = () => {
     setTaskForm((f) => ({
       ...f,
       questions: [...f.questions, { questionNumber: '', title: '', leetcodeUrl: '', difficulty: 'Medium' }],
     }));
+  };
 
-  const updateQuestion = (idx, key, value) =>
+  const updateQuestion = (idx, key, value) => {
     setTaskForm((f) => {
       const q = [...f.questions];
       q[idx] = { ...q[idx], [key]: value };
       return { ...f, questions: q };
     });
+  };
 
-  const removeQuestion = (idx) =>
+  const removeQuestion = (idx) => {
     setTaskForm((f) => ({
       ...f,
       questions: f.questions.filter((_, i) => i !== idx),
     }));
+  };
 
   const createTask = useMutation({
     mutationFn: async (payload) => {
@@ -56,12 +60,12 @@ const TaskManagement = () => {
       // map UI fields to backend schema (url)
       const mapped = {
         ...payload,
-        questions: (payload.questions || []).map(q => ({
+        questions: (payload.questions || []).map((q) => ({
           questionNumber: Number(q.questionNumber),
           title: q.title,
           difficulty: q.difficulty || 'Medium',
-          url: q.leetcodeUrl || q.url || ''
-        }))
+          url: q.leetcodeUrl || q.url || '',
+        })),
       };
       // console.log('🔍 TaskManagement - Mapped payload:', mapped);
       const res = await api.post('/leetcode/tasks', mapped);
@@ -69,7 +73,7 @@ const TaskManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries('admin-tasks');
-      alert('Task created successfully!');
+      toast.success('Task created successfully!');
       setTaskForm({
         title: '',
         description: '',
@@ -80,8 +84,8 @@ const TaskManagement = () => {
     onError: (error) => {
       console.error('🔍 TaskManagement - Create error:', error);
       console.error('🔍 TaskManagement - Error response:', error.response?.data);
-      alert(`Failed to create task: ${error.response?.data?.message || error.message}`);
-    }
+      toast.error(`Failed to create task: ${error.response?.data?.message || error.message}`);
+    },
   });
 
   const updateTask = useMutation({
@@ -89,25 +93,25 @@ const TaskManagement = () => {
       // console.log('🔍 TaskManagement - Updating task:', taskId, 'with payload:', payload);
       const mapped = {
         ...payload,
-        questions: (payload.questions || []).map(q => ({
+        questions: (payload.questions || []).map((q) => ({
           questionNumber: Number(q.questionNumber),
           title: q.title,
           difficulty: q.difficulty || 'Medium',
-          url: q.leetcodeUrl || q.url || ''
-        }))
+          url: q.leetcodeUrl || q.url || '',
+        })),
       };
       const res = await api.put(`/leetcode/tasks/${taskId}`, mapped);
       return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries('admin-tasks');
-      alert('Task updated successfully!');
+      toast.success('Task updated successfully!');
     },
     onError: (error) => {
       console.error('🔍 TaskManagement - Update error:', error);
       console.error('🔍 TaskManagement - Error response:', error.response?.data);
-      alert(`Failed to update task: ${error.response?.data?.message || error.message}`);
-    }
+      toast.error(`Failed to update task: ${error.response?.data?.message || error.message}`);
+    },
   });
 
   const deleteTask = useMutation({
@@ -118,13 +122,13 @@ const TaskManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries('admin-tasks');
-      alert('Task removed');
+      toast.success('Task removed successfully!');
     },
     onError: (error) => {
       console.error('🔍 TaskManagement - Delete error:', error);
       console.error('🔍 TaskManagement - Error response:', error.response?.data);
-      alert(`Failed to delete task: ${error.response?.data?.message || error.message}`);
-    }
+      toast.error(`Failed to delete task: ${error.response?.data?.message || error.message}`);
+    },
   });
 
   if (isLoading) {
@@ -145,6 +149,37 @@ const TaskManagement = () => {
 
   const tasks = Array.isArray(data) ? data : [];
 
+  // Get all existing question numbers from all tasks
+  const getAllExistingQuestions = () => {
+    const existingQuestions = new Map(); // questionNumber -> { taskTitle, taskId }
+    tasks.forEach((task) => {
+      if (task.questions && Array.isArray(task.questions)) {
+        task.questions.forEach((question) => {
+          if (question.questionNumber) {
+            existingQuestions.set(question.questionNumber.toString(), {
+              taskTitle: task.title,
+              taskId: task._id,
+              questionTitle: question.title,
+            });
+          }
+        });
+      }
+    });
+    return existingQuestions;
+  };
+
+  // Check if a question number is duplicate
+  const checkDuplicateQuestion = (questionNumber, currentTaskId = null) => {
+    if (!questionNumber) return null;
+    const existingQuestions = getAllExistingQuestions();
+    const existing = existingQuestions.get(questionNumber.toString());
+    // If it exists and it's not from the current task being edited
+    if (existing && existing.taskId !== currentTaskId) {
+      return existing;
+    }
+    return null;
+  };
+
   return (
     <div className="space-y-6">
       {/* Debug User Status */}
@@ -163,29 +198,62 @@ const TaskManagement = () => {
           </div>
         )}
       </div> */}
-      
+
       <h1 className="text-2xl font-bold text-gray-900">Task Management</h1>
 
       {/* Create Task */}
       <div className="card">
         <div className="card-header">
           <h3 className="text-lg font-medium text-gray-900">Create LeetCode Task</h3>
+          {/* Duplicate Questions Warning */}
+          {(() => {
+            const duplicates = taskForm.questions.filter((q) => q.questionNumber && checkDuplicateQuestion(q.questionNumber));
+            if (duplicates.length > 0) {
+              return (
+                <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-red-800">Duplicate Questions Detected</h3>
+                      <div className="mt-2 text-sm text-red-700">
+                        <p>You have {duplicates.length} question(s) that already exist in other tasks. Please review and use different question numbers.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
         </div>
         <form
           className="space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
             if (!taskForm.title || !taskForm.deadline) {
-              alert('Title and deadline are required');
+              toast.error('Title and deadline are required');
               return;
             }
-            
+
             // Validate questions
-            const invalidQuestions = taskForm.questions.filter(q => 
-              q.questionNumber && (!q.title || !q.leetcodeUrl)
-            );
+            const invalidQuestions = taskForm.questions.filter((q) => q.questionNumber && (!q.title || !q.leetcodeUrl));
             if (invalidQuestions.length > 0) {
-              alert('All questions must have a title and LeetCode URL');
+              toast.error('All questions must have a number, title and LeetCode URL');
+              return;
+            }
+
+            // Check for duplicate questions
+            const duplicateQuestions = taskForm.questions.filter((q) => q.questionNumber && checkDuplicateQuestion(q.questionNumber));
+            if (duplicateQuestions.length > 0) {
+              toast.error(`Cannot create task: ${duplicateQuestions.length} question(s) already exist in other tasks`);
               return;
             }
             const payload = {
@@ -244,61 +312,75 @@ const TaskManagement = () => {
               </button>
             </div>
 
-            {taskForm.questions.map((q, idx) => (
-              <div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-3 p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <label className="form-label">Number</label>
-                  <input
-                    type="number"
-                    className="form-input mt-1"
-                    value={q.questionNumber}
-                    onChange={(e) => updateQuestion(idx, 'questionNumber', e.target.value)}
-                    placeholder="e.g. 1"
-                    required
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="form-label">Title</label>
-                  <input
-                    className="form-input mt-1"
-                    value={q.title}
-                    onChange={(e) => updateQuestion(idx, 'title', e.target.value)}
-                    placeholder="Two Sum"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="form-label">Difficulty</label>
-                  <select
-                    className="form-input mt-1"
-                    value={q.difficulty || 'Medium'}
-                    onChange={(e) => updateQuestion(idx, 'difficulty', e.target.value)}
-                    required
-                  >
-                    <option value="Easy">Easy</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Hard">Hard</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="form-label">LeetCode URL</label>
-                  <input
-                    className="form-input mt-1"
-                    value={q.leetcodeUrl}
-                    onChange={(e) => updateQuestion(idx, 'leetcodeUrl', e.target.value)}
-                    placeholder="https://leetcode.com/problems/..."
-                    required
-                  />
-                </div>
-                {taskForm.questions.length > 1 && (
-                  <div className="md:col-span-5 flex justify-end">
-                    <button type="button" className="btn-primary" onClick={() => removeQuestion(idx)}>
-                      Remove
-                    </button>
+            {taskForm.questions.map((q, idx) => {
+              const duplicateInfo = checkDuplicateQuestion(q.questionNumber);
+              const isDuplicate = duplicateInfo !== null;
+              return (
+                <div
+                  key={idx}
+                  className={`grid grid-cols-1 md:grid-cols-5 gap-3 p-3 rounded-lg ${
+                    isDuplicate ? 'bg-red-50 border-2 border-red-200' : 'bg-gray-50'
+                  }`}
+                >
+                  <div>
+                    <label className="form-label">Number</label>
+                    <input
+                      type="number"
+                      className={`form-input mt-1 ${isDuplicate ? 'border-red-300 bg-red-50 text-red-900' : ''}`}
+                      value={q.questionNumber}
+                      onChange={(e) => updateQuestion(idx, 'questionNumber', e.target.value)}
+                      placeholder="e.g. 1"
+                      required
+                    />
+                    {isDuplicate && (
+                      <div className="mt-1 text-xs text-red-600 font-medium">
+                        ⚠️ Already used in: "{duplicateInfo.taskTitle}"
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
+                  <div className="md:col-span-2">
+                    <label className="form-label">Title</label>
+                    <input
+                      className="form-input mt-1"
+                      value={q.title}
+                      onChange={(e) => updateQuestion(idx, 'title', e.target.value)}
+                      placeholder="Two Sum"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label">Difficulty</label>
+                    <select
+                      className="form-input mt-1"
+                      value={q.difficulty || 'Medium'}
+                      onChange={(e) => updateQuestion(idx, 'difficulty', e.target.value)}
+                      required
+                    >
+                      <option value="Easy">Easy</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Hard">Hard</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="form-label">LeetCode URL</label>
+                    <input
+                      className="form-input mt-1"
+                      value={q.leetcodeUrl}
+                      onChange={(e) => updateQuestion(idx, 'leetcodeUrl', e.target.value)}
+                      placeholder="https://leetcode.com/problems/..."
+                      required
+                    />
+                  </div>
+                  {taskForm.questions.length > 1 && (
+                    <div className="md:col-span-5 flex justify-end">
+                      <button type="button" className="btn-primary" onClick={() => removeQuestion(idx)}>
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           <div className="flex justify-end">
@@ -318,7 +400,7 @@ const TaskManagement = () => {
         {tasks.length === 0 ? (
           <p className="text-gray-600">No tasks yet.</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-6">
             {tasks.map((t) => (
               <EditableTaskRow
                 key={t._id}
@@ -331,6 +413,7 @@ const TaskManagement = () => {
                 }}
                 isSaving={updateTask.isLoading}
                 isDeleting={deleteTask.isLoading}
+                checkDuplicateQuestion={checkDuplicateQuestion}
               />
             ))}
           </div>
@@ -340,44 +423,53 @@ const TaskManagement = () => {
   );
 };
 
-const EditableTaskRow = ({ task, onSave, onDelete, isSaving, isDeleting }) => {
-  const [edit, setEdit] = useState(() => ({
+const EditableTaskRow = ({ task, onSave, onDelete, isSaving, isDeleting, checkDuplicateQuestion }) => {
+  const [edit, setEdit] = useState({
     title: task.title || '',
     description: task.description || '',
     deadline: task.deadline ? new Date(task.deadline).toISOString().slice(0, 16) : '',
     isActive: task.isActive !== false,
-    questions: (task.questions || []).map(q => ({
+    questions: (task.questions || []).map((q) => ({
       questionNumber: q.questionNumber || '',
       title: q.title || '',
       difficulty: q.difficulty || 'Medium',
-      leetcodeUrl: q.url || ''
+      leetcodeUrl: q.url || '',
     })),
-  }));
+  });
 
-  const addQ = () =>
+  const addQ = () => {
     setEdit((f) => ({
       ...f,
       questions: [...f.questions, { questionNumber: '', title: '', difficulty: 'Medium', leetcodeUrl: '' }],
     }));
+  };
 
-  const updateQ = (idx, key, value) =>
+  const updateQ = (idx, key, value) => {
     setEdit((f) => {
       const q = [...f.questions];
       q[idx] = { ...q[idx], [key]: value };
       return { ...f, questions: q };
     });
+  };
 
-  const removeQ = (idx) =>
+  const removeQ = (idx) => {
     setEdit((f) => ({
       ...f,
       questions: f.questions.filter((_, i) => i !== idx),
     }));
+  };
 
   return (
-    <div className={`p-3 rounded-lg ${task.isActive === false ? 'bg-red-50 border border-red-200' : 'bg-gray-50'}`}>
-      {task.isActive === false && (
+    <div
+      className={`p-4 rounded-lg border-2 ${task.isActive === false ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}
+    >
+      {task.isActive === false ? (
         <div className="mb-3 px-3 py-1 bg-red-100 border border-red-300 rounded-md">
           <span className="text-red-700 font-medium text-sm">🗑️ DELETED - This task is inactive</span>
+        </div>
+      ) : (
+        <div className="mb-3 px-3 py-1 bg-green-100 border border-green-300 rounded-md">
+          <span className="text-green-700 font-medium text-sm">✅ ACTIVE - This task is live</span>
         </div>
       )}
       <div className="grid grid-cols-1 gap-3">
@@ -428,69 +520,75 @@ const EditableTaskRow = ({ task, onSave, onDelete, isSaving, isDeleting }) => {
             </button>
           </div>
 
-          {edit.questions.map((q, idx) => (
-            <div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-3 p-3 bg-white rounded-lg">
-              <div>
-                <label className="form-label">Number</label>
-                <input
-                  type="number"
-                  className="form-input mt-1"
-                  value={q.questionNumber}
-                  onChange={(e) => updateQ(idx, 'questionNumber', e.target.value)}
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="form-label">Title</label>
-                <input
-                  className="form-input mt-1"
-                  value={q.title}
-                  onChange={(e) => updateQ(idx, 'title', e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="form-label">Difficulty</label>
-                <select
-                  className="form-input mt-1"
-                  value={q.difficulty || 'Medium'}
-                  onChange={(e) => updateQ(idx, 'difficulty', e.target.value)}
-                >
-                  <option value="Easy">Easy</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Hard">Hard</option>
-                </select>
-              </div>
-              <div>
-                <label className="form-label">LeetCode URL</label>
-                <input
-                  className="form-input mt-1"
-                  value={q.leetcodeUrl}
-                  onChange={(e) => updateQ(idx, 'leetcodeUrl', e.target.value)}
-                />
-              </div>
-              {edit.questions.length > 1 && (
-                <div className="md:col-span-5 flex justify-end">
-                  <button type="button" className="btn-primary" onClick={() => removeQ(idx)}>
-                    Remove
-                  </button>
+          {edit.questions.map((q, idx) => {
+            const duplicateInfo = checkDuplicateQuestion(q.questionNumber, task._id);
+            const isDuplicate = duplicateInfo !== null;
+            return (
+              <div
+                key={idx}
+                className={`grid grid-cols-1 md:grid-cols-5 gap-3 p-3 rounded-lg ${
+                  isDuplicate ? 'bg-red-50 border-2 border-red-200' : 'bg-white'
+                }`}
+              >
+                <div>
+                  <label className="form-label">Number</label>
+                  <input
+                    type="number"
+                    className={`form-input mt-1 ${isDuplicate ? 'border-red-300 bg-red-50 text-red-900' : ''}`}
+                    value={q.questionNumber}
+                    onChange={(e) => updateQ(idx, 'questionNumber', e.target.value)}
+                  />
+                  {isDuplicate && (
+                    <div className="mt-1 text-xs text-red-600 font-medium">
+                      ⚠️ Already used in: "{duplicateInfo.taskTitle}"
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          ))}
+                <div className="md:col-span-2">
+                  <label className="form-label">Title</label>
+                  <input
+                    className="form-input mt-1"
+                    value={q.title}
+                    onChange={(e) => updateQ(idx, 'title', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="form-label">Difficulty</label>
+                  <select
+                    className="form-input mt-1"
+                    value={q.difficulty || 'Medium'}
+                    onChange={(e) => updateQ(idx, 'difficulty', e.target.value)}
+                  >
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="form-label">LeetCode URL</label>
+                  <input
+                    className="form-input mt-1"
+                    value={q.leetcodeUrl}
+                    onChange={(e) => updateQ(idx, 'leetcodeUrl', e.target.value)}
+                  />
+                </div>
+                {edit.questions.length > 1 && (
+                  <div className="md:col-span-5 flex justify-end">
+                    <button type="button" className="btn-primary" onClick={() => removeQ(idx)}>
+                      Remove
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <div className="flex justify-end gap-2">
-          <button
-            className="btn-secondary"
-            onClick={() => onSave(edit)}
-            disabled={isSaving}
-          >
+          <button className="btn-secondary" onClick={() => onSave(edit)} disabled={isSaving}>
             {isSaving ? 'Saving...' : 'Save'}
           </button>
-          <button
-            className="btn-primary"
-            onClick={onDelete}
-            disabled={isDeleting}
-          >
+          <button className="btn-primary" onClick={onDelete} disabled={isDeleting}>
             {isDeleting ? 'Removing...' : 'Remove'}
           </button>
         </div>
