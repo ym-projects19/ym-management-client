@@ -318,9 +318,8 @@ const TaskManagement = () => {
               return (
                 <div
                   key={idx}
-                  className={`grid grid-cols-1 md:grid-cols-5 gap-3 p-3 rounded-lg ${
-                    isDuplicate ? 'bg-red-50 border-2 border-red-200' : 'bg-gray-50'
-                  }`}
+                  className={`grid grid-cols-1 md:grid-cols-5 gap-3 p-3 rounded-lg ${isDuplicate ? 'bg-red-50 border-2 border-red-200' : 'bg-gray-50'
+                    }`}
                 >
                   <div>
                     <label className="form-label">Number</label>
@@ -526,9 +525,8 @@ const EditableTaskRow = ({ task, onSave, onDelete, isSaving, isDeleting, checkDu
             return (
               <div
                 key={idx}
-                className={`grid grid-cols-1 md:grid-cols-5 gap-3 p-3 rounded-lg ${
-                  isDuplicate ? 'bg-red-50 border-2 border-red-200' : 'bg-white'
-                }`}
+                className={`grid grid-cols-1 md:grid-cols-5 gap-3 p-3 rounded-lg ${isDuplicate ? 'bg-red-50 border-2 border-red-200' : 'bg-white'
+                  }`}
               >
                 <div>
                   <label className="form-label">Number</label>

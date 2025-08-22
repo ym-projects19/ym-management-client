@@ -10,7 +10,7 @@ import {
   Users
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import axios from 'axios';
+import api from '../../api/client';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -19,7 +19,7 @@ const Dashboard = () => {
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ['dashboard'],
     queryFn: async () => {
-      const response = await axios.get('/api/dashboard');
+      const response = await api.get('/dashboard');
       return response.data;
     },
     refetchInterval: 30000, // Refetch every 30 seconds
