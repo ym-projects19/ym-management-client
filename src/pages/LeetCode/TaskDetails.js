@@ -6,7 +6,9 @@ import {
   ThumbsUp,
   MessageSquare,
   Check,
-  X
+  X,
+  Users,
+  BarChart3
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -14,6 +16,8 @@ import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../api/client';
 import { toast } from 'react-hot-toast';
+import QuestionCompletionModal from '../../components/LeetCode/QuestionCompletionModal';
+import TaskProgress from '../../components/LeetCode/TaskProgress';
 
 const languages = [
   { value: 'javascript', label: 'JavaScript' },
@@ -72,6 +76,8 @@ const TaskDetails = () => {
   const queryClient = useQueryClient();
   const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
   const [activeSolutionTab, setActiveSolutionTab] = useState('yours'); // 'yours' or 'others'
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
 
   // Fetch task details
   const { data: taskData, isLoading, error } = useQuery({
@@ -312,6 +318,11 @@ const TaskDetails = () => {
     return submission.likes.some(like => like.user === userId);
   };
 
+  const handleViewCompletion = (question) => {
+    setSelectedQuestion(question);
+    setShowCompletionModal(true);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -336,6 +347,18 @@ const TaskDetails = () => {
         )}
       </div>
 
+      {/* User Progress (for non-admin users) */}
+      {user?.role !== 'admin' && (
+        <div className="card">
+          <div className="card-header">
+            <h3 className="text-lg font-medium text-gray-900">Your Progress</h3>
+          </div>
+          <div className="p-4">
+            <TaskProgress taskId={taskId} showDetails={true} />
+          </div>
+        </div>
+      )}
+
       {/* Task Questions */}
       <div className="card">
         <div className="card-header">
@@ -354,16 +377,27 @@ const TaskDetails = () => {
                       <p className="text-sm text-gray-500">Difficulty: {q.difficulty}</p>
                     )}
                   </div>
-                  {q.url && (
-                    <a
-                      href={q.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-600 text-sm hover:text-blue-800 underline"
-                    >
-                      Open on LeetCode
-                    </a>
-                  )}
+                  <div className="flex items-center space-x-3">
+                    {user?.role === 'admin' && (
+                      <button
+                        onClick={() => handleViewCompletion(q)}
+                        className="inline-flex items-center px-3 py-1.5 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      >
+                        <Users className="w-4 h-4 mr-1" />
+                        View Completion
+                      </button>
+                    )}
+                    {q.url && (
+                      <a
+                        href={q.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-600 text-sm hover:text-blue-800 underline"
+                      >
+                        Open on LeetCode
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -722,6 +756,14 @@ const TaskDetails = () => {
           </div>
         </form>
       </div>
+
+      {/* Question Completion Modal */}
+      <QuestionCompletionModal
+        isOpen={showCompletionModal}
+        onClose={() => setShowCompletionModal(false)}
+        taskId={taskId}
+        question={selectedQuestion}
+      />
     </div>
   );
 };

@@ -13,6 +13,7 @@ import { toast } from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../api/client';
 import TaskFilters from '../../components/TaskFilters';
+import TaskProgress from '../../components/LeetCode/TaskProgress';
 
 const LeetCodeTasks = () => {
   const { user } = useAuth();
@@ -453,6 +454,13 @@ const LeetCodeTasks = () => {
                     )}
                   </div>
                 </div>
+
+                {/* User Progress (for non-admin users) */}
+                {!isDeleted && user?.role !== 'admin' && (
+                  <div className="mb-4">
+                    <TaskProgress taskId={task._id} showDetails={false} />
+                  </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">

@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
+import { Users, BarChart3 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../api/client';
+import QuestionCompletionModal from '../../components/LeetCode/QuestionCompletionModal';
 
 const TaskManagement = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
 
   // Debug current user
   useEffect(() => {
@@ -178,6 +183,12 @@ const TaskManagement = () => {
       return existing;
     }
     return null;
+  };
+
+  const handleViewCompletion = (task, question) => {
+    setSelectedTaskId(task._id);
+    setSelectedQuestion(question);
+    setShowCompletionModal(true);
   };
 
   return (
@@ -413,16 +424,25 @@ const TaskManagement = () => {
                 isSaving={updateTask.isLoading}
                 isDeleting={deleteTask.isLoading}
                 checkDuplicateQuestion={checkDuplicateQuestion}
+                onViewCompletion={(question) => handleViewCompletion(t, question)}
               />
             ))}
           </div>
         )}
       </div>
+
+      {/* Question Completion Modal */}
+      <QuestionCompletionModal
+        isOpen={showCompletionModal}
+        onClose={() => setShowCompletionModal(false)}
+        taskId={selectedTaskId}
+        question={selectedQuestion}
+      />
     </div>
   );
 };
 
-const EditableTaskRow = ({ task, onSave, onDelete, isSaving, isDeleting, checkDuplicateQuestion }) => {
+const EditableTaskRow = ({ task, onSave, onDelete, isSaving, isDeleting, checkDuplicateQuestion, onViewCompletion }) => {
   const [edit, setEdit] = useState({
     title: task.title || '',
     description: task.description || '',
@@ -570,13 +590,29 @@ const EditableTaskRow = ({ task, onSave, onDelete, isSaving, isDeleting, checkDu
                     onChange={(e) => updateQ(idx, 'leetcodeUrl', e.target.value)}
                   />
                 </div>
-                {edit.questions.length > 1 && (
-                  <div className="md:col-span-5 flex justify-end">
+                <div className="md:col-span-5 flex justify-between items-center">
+                  <div className="flex items-center space-x-2">
+                    {task.isActive && q.questionNumber && (
+                      <button
+                        type="button"
+                        onClick={() => onViewCompletion({
+                          questionNumber: q.questionNumber,
+                          title: q.title,
+                          difficulty: q.difficulty
+                        })}
+                        className="inline-flex items-center px-3 py-1.5 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      >
+                        <Users className="w-4 h-4 mr-1" />
+                        View Completion
+                      </button>
+                    )}
+                  </div>
+                  {edit.questions.length > 1 && (
                     <button type="button" className="btn-primary" onClick={() => removeQ(idx)}>
                       Remove
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             );
           })}
